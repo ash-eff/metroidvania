@@ -1,4 +1,6 @@
-﻿Shader "Unlit/Dissolve"
+﻿// Upgrade NOTE: replaced 'mul(UNITY_MATRIX_MVP,*)' with 'UnityObjectToClipPos(*)'
+
+Shader "Unlit/DissolveEffectShader"
 {
 	Properties
 	{
@@ -24,50 +26,50 @@
 		Fog{ Mode Off }
 
 		CGPROGRAM
-			#pragma vertex vert
-			#pragma fragment frag
+		#pragma vertex vert
+		#pragma fragment frag
 		// make fog work
-			#pragma multi_compile DUMMY PIXELSNAP_ON
+		#pragma multi_compile DUMMY PIXELSNAP_ON
 
-			#include "UnityCG.cginc"
+		#include "UnityCG.cginc"
 
-		struct appdata
-		{
-			float4 vertex : POSITION;
-			float2 uv : TEXCOORD0;
-		};
+	struct appdata
+	{
+		float4 vertex : POSITION;
+		float2 uv : TEXCOORD0;
+	};
 
-		struct v2f
-		{
-			float2 uv : TEXCOORD0;
-			float4 vertex : SV_POSITION;
-		};
+	struct v2f
+	{
+		float2 uv : TEXCOORD0;
+		float4 vertex : SV_POSITION;
+	};
 
-		sampler2D _MainTex;
-		sampler2D _NoiseTex;
-		float4 _EdgeColour1;
-		float4 _EdgeColour2;
-		float _Level;
-		float _Edges;
-		float4 _MainTex_ST;
+	sampler2D _MainTex;
+	sampler2D _NoiseTex;
+	float4 _EdgeColour1;
+	float4 _EdgeColour2;
+	float _Level;
+	float _Edges;
+	float4 _MainTex_ST;
 
-		v2f vert(appdata v)
-		{
-			v2f o;
-			o.vertex = UnityObjectToClipPos(v.vertex);
-			o.uv = TRANSFORM_TEX(v.uv, _MainTex);
+	v2f vert(appdata v)
+	{
+		v2f o;
+		o.vertex = UnityObjectToClipPos(v.vertex);
+		o.uv = TRANSFORM_TEX(v.uv, _MainTex);
 
-			#ifdef PIXELSNAP_ON
-			o.vertex = UnityPixelSnap(o.vertex);
-			#endif
+	#ifdef PIXELSNAP_ON
+		o.vertex = UnityPixelSnap(o.vertex);
+	#endif
 
-			return o;
-		}
+		return o;
+	}
 
-		fixed4 frag(v2f i) : SV_Target
-		{
-			// sample the texture
-			float cutout = tex2D(_NoiseTex, i.uv).r;
+	fixed4 frag(v2f i) : SV_Target
+	{
+		// sample the texture
+		float cutout = tex2D(_NoiseTex, i.uv).y;
 		fixed4 col = tex2D(_MainTex, i.uv);
 
 		if (cutout < _Level)
@@ -77,8 +79,8 @@
 			col = lerp(_EdgeColour1, _EdgeColour2, (cutout - _Level) / _Edges);
 
 		return col;
-		}
-			ENDCG
-		}
+	}
+		ENDCG
+	}
 	}
 }
