@@ -64,6 +64,7 @@
     <Compile Include="Assets\Scripts\ChainMechanism.cs" />
     <Compile Include="Assets\Scripts\ChainMove.cs" />
     <Compile Include="Assets\Scripts\CharacterController2D.cs" />
+    <Compile Include="Assets\Scripts\Checkpoint.cs" />
     <Compile Include="Assets\Scripts\EditorSnap.cs" />
     <Compile Include="Assets\Scripts\EnemyFacingDirection.cs" />
     <Compile Include="Assets\Scripts\MiniBot.cs" />
@@ -75,6 +76,7 @@
     <Compile Include="Assets\Scripts\RobotWalk.cs" />
     <Compile Include="Assets\Scripts\RuleTile.cs" />
     <Compile Include="Assets\Scripts\ShootingRobot.cs" />
+    <Compile Include="Assets\Scripts\Spikes.cs" />
     <Compile Include="Assets\Scripts\WorldSwap.cs" />
     <None Include="Assets\Shader\Dissolve.shader" />
     <Reference Include="Cinemachine">

@@ -8,27 +8,28 @@ public class PlayerMovement : MonoBehaviour
     [SerializeField]
     private CharacterController2D controller;
     [SerializeField]
-    private GameObject projectile;
-    [SerializeField]
     private GameObject explosion;
     [SerializeField]
     private float speed;
     [SerializeField]
     private float fireRate;
 
+    private float knockedBackTimer;
     private float horizontal;
     private float nextFire;
+
     private bool jump;
+    private bool knockedBack;
+    private bool hitFromRight;
 
-    private Vector3 startPos;
-
+    Player player;
     Rigidbody2D rb2d;
     private LineRenderer lr;
     private Animator anim;
 
     private void Awake()
     {
-        startPos = transform.position;
+        player = GetComponent<Player>();
         rb2d = GetComponent<Rigidbody2D>();
         lr = GetComponent<LineRenderer>();
         anim = GetComponent<Animator>();
@@ -37,16 +38,28 @@ public class PlayerMovement : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        horizontal = Input.GetAxisRaw("Horizontal") * speed;
-
-        if (Input.GetButtonDown("Jump"))
+        if(!knockedBack)
         {
-            jump = true;
+            horizontal = Input.GetAxisRaw("Horizontal") * speed;
+
+            if (Input.GetButtonDown("Jump"))
+            {
+                jump = true;
+            }
+
+            if (Input.GetButton("Fire1") && Time.time > nextFire)
+            {
+                StartCoroutine(ShootLaser());
+            }
         }
 
-        if (Input.GetButton("Fire1") && Time.time > nextFire)
+        if(knockedBackTimer > 0)
         {
-            StartCoroutine(ShootLaser());
+            knockedBackTimer -= Time.deltaTime;
+        }
+        else
+        {
+            knockedBack = false;
         }
 
         // running
@@ -72,7 +85,23 @@ public class PlayerMovement : MonoBehaviour
 
     private void FixedUpdate()
     {
-        controller.Move(horizontal * Time.fixedDeltaTime, false, jump);
+        if (!knockedBack)
+        {
+            controller.Move(horizontal * Time.fixedDeltaTime, jump);
+        }
+        else
+        {
+            if (hitFromRight)
+            {
+                controller.Knockback(-50);
+            }
+            else
+            {
+                controller.Knockback(50);
+            }
+        }
+
+
         jump = false;
     }
 
@@ -107,25 +136,29 @@ public class PlayerMovement : MonoBehaviour
         lr.SetPosition(1, Vector3.zero);
     }
 
-    private void OnCollisionEnter2D(Collision2D collision)
+    public void KnockBack(bool fromRight)
     {
-        if (collision.gameObject.tag == "MovingPlatform")
+        if (!knockedBack)
         {
-            transform.parent = collision.gameObject.transform;
-        }
-
-        if (collision.gameObject.tag == "Hole")
-        {
-            Debug.Log("Dead");
-            transform.position = startPos;
+            hitFromRight = fromRight;
+            knockedBack = true;
+            knockedBackTimer = .3f;
+            player.TakeDamage();
         }
     }
 
-    private void OnCollisionExit2D(Collision2D collision)
+    private void OnTriggerEnter2D(Collider2D collision)
     {
-        if (collision.gameObject.tag == "MovingPlatform")
+        if (collision.gameObject.tag == "Enemy" || collision.gameObject.tag == "Spikes")
         {
-            transform.parent = null;
+            if (collision.transform.position.x > transform.position.x)
+            {
+                KnockBack(true);
+            }
+            else
+            {
+                KnockBack(false);
+            }
         }
     }
 }
