@@ -143,22 +143,7 @@ public class PlayerMovement : MonoBehaviour
             hitFromRight = fromRight;
             knockedBack = true;
             knockedBackTimer = .3f;
-            player.TakeDamage();
-        }
-    }
-
-    private void OnTriggerEnter2D(Collider2D collision)
-    {
-        if (collision.gameObject.tag == "Enemy" || collision.gameObject.tag == "Spikes")
-        {
-            if (collision.transform.position.x > transform.position.x)
-            {
-                KnockBack(true);
-            }
-            else
-            {
-                KnockBack(false);
-            }
+            player.TakeDamage(1);
         }
     }
 }
